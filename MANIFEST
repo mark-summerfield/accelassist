@@ -1,0 +1,27 @@
+# TODO convert munkres so it is done properly!
+accelassist.tk
+app-1.tm
+config-1.tm
+config_form-1.tm
+
+textedit-1.tm
+textedit_actions-1.tm
+textedit_export-1.tm
+textedit_export_html-1.tm
+textedit_import-1.tm
+textedit_initialize-1.tm
+textedit_serialize-1.tm
+
+ref-1.tm
+util-1.tm
+about_form-1.tm
+abstract_form-1.tm
+message_form-1.tm
+ui-1.tm
+
+st.sh
+
+# NOTE
+# - add Load & Save?
+
+# vim: syn=yaml
