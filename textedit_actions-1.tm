@@ -90,7 +90,9 @@ oo::define TextEdit method on_tab {{user true}} {
         $Text tag add bindent1 $i "$j +1 char"
         if {$user} { return -code break }
     }
-    if {[my TryCompletion $p] && $user} { return -code break }
+    if {$Completion && [my TryCompletion $p] && $user} {
+        return -code break
+    }
 }
 
 oo::define TextEdit method TryCompletion p {

@@ -7,6 +7,7 @@ package require ui
 oo::class create TextEdit {
     variable Frame
     variable Text
+    variable Completion
     variable CompletionMenu
     variable ContextMenu
 }
@@ -44,6 +45,7 @@ oo::define TextEdit constructor {parent {family ""} {size 0}} {
     set Frame ${parent}tf#[incr N] ;# unique
     ttk::frame $Frame
     set Text [text $Frame.txt -undo true -wrap word]
+    set Completion true
     set CompletionMenu [menu $Frame.completionMenu]
     my MakeContextMenu
     my MakeBindings
@@ -51,6 +53,10 @@ oo::define TextEdit constructor {parent {family ""} {size 0}} {
     my make_tags
     ui::scrollize $Frame txt vertical
 }
+
+oo::define TextEdit method completion {} { return $Completion }
+
+oo::define TextEdit method set_completion value { set Completion $value }
 
 oo::define TextEdit method MakeContextMenu {} {
     set ContextMenu [menu $Frame.contextMenu]

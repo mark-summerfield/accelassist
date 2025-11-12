@@ -2,11 +2,11 @@
 
 package require config
 package require config_form
+package require item
+package require lambda 1
 package require ref
 package require textedit
 package require ui
-
-namespace eval app {}
 
 oo::singleton create App {
     variable UnhintedTextEdit
@@ -29,6 +29,7 @@ oo::define App method show {} {
     wm geometry . [$config geometry]
     raise .
     update
+    focus [$UnhintedTextEdit tk_text]
 }
 
 oo::define App method make_ui {} {
@@ -49,7 +50,16 @@ oo::define App method make_widgets {} {
     ttk::frame .mf
     ttk::frame .mf.body
     set UnhintedTextEdit [TextEdit new .mf.body]
+    if {[set unhinted [string trim [$config lastunhinted]]] eq ""} {
+        set unhinted "Undo\nRedo\nCopy\nCu&t\nPaste\nFind\nFind\
+            Again\nFind && Replace"
+    }
+    $UnhintedTextEdit insert end $unhinted
     set HintedTextEdit [TextEdit new .mf.body]
+    set tab1 [font measure TkDefaultFont "9999"]
+    set tab2 [expr {$tab1 + [font measure TkDefaultFont —]}]
+    $HintedTextEdit configure -tabs "$tab1 numeric $tab2 left" -undo false
+    $HintedTextEdit set_completion false
     ttk::frame .mf.ctrl
     ttk::label .mf.ctrl.label -text Alphabet: -underline 0
     ttk::radiobutton .mf.ctrl.az -text A-Z -underline 0 \
@@ -105,8 +115,8 @@ oo::define App method make_bindings {} {
 }
 
 oo::define App method on_change {} {
-    puts on_change ;# TODO recompute
     $UnhintedTextEdit edit modified false
+    my AccelAssist
 }
 
 oo::define App method on_config {} {
@@ -118,6 +128,61 @@ oo::define App method on_config {} {
 
 oo::define App method on_quit {} {
     set config [Config new]
+    $config set_lastunhinted [$UnhintedTextEdit get 1.0 end]
     $config save
     exit
+}
+
+oo::define App method AccelAssist {} {
+    switch $WhichAlphabet {
+        az { set alphabet ABCDEFGHIJKLMNOPQRSTUVWXYZ }
+        az19 { set alphabet 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ }
+        az09 { set alphabet 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ }
+    }
+    set unused [dict create]
+    foreach c [split $alphabet ""] {
+        dict set unused $c ""
+    }
+    set items [list]
+    foreach term [split [$UnhintedTextEdit get 1.0 end] \n] {
+        if {$term ne ""} {
+            set item [Item new $term]
+            lappend items $item
+            if {[set c [$item char]] ne ""} {
+                dict unset unused $c
+            }
+        }
+    }
+    set bysize [lsort -indices -command [lambda {a b} { $a compare $b }] \
+        $items]
+    foreach i $bysize {
+        set item [lindex $items $i]
+        foreach c [$item candidates] {
+            if {[dict exists $unused $c]} {
+                $item set_char $c
+                dict unset unused $c
+            }
+        }
+    }
+    $HintedTextEdit delete 1.0 end
+    foreach item $items {
+        set c [$item char]
+        $HintedTextEdit insert end [expr {$c eq "" ? " " : $c}]\t \
+            {green bold}
+        if {[set i [$item index]] == -1} {
+            $HintedTextEdit insert end ?\t red
+        } else {
+            $HintedTextEdit insert end $i\t purple
+        }
+        set term [$item term]
+        if {$i == -1} {
+            $HintedTextEdit insert end $term
+        } else {
+            $HintedTextEdit insert end [string range $term 0 $i-1]
+            $HintedTextEdit insert end [string index $term $i] \
+                {highlight ul}
+            $HintedTextEdit insert end [string range $term $i+1 end]
+        }
+        $HintedTextEdit insert end \n
+    }
 }
