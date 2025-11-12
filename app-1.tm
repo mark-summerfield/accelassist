@@ -157,8 +157,7 @@ oo::define App method AccelAssist {} {
     $CountLabel configure -text 0/0
     $UnusedLabel configure -text $alphabet -foreground navy
     foreach c [split $alphabet ""] { dict set unused $c "" }
-    set used [dict create]
-    if {[set items [my GetItems used]] eq ""} { return }
+    if {[set items [my GetItems unused]] eq ""} { return }
     my PrepareUnused $items unused
     set done [my PopulateHinted $items]
     set total [llength $items]
@@ -167,20 +166,22 @@ oo::define App method AccelAssist {} {
     $UnusedLabel configure -text [join [dict keys $unused] ""]
 }
 
-oo::define App method GetItems used {
-    upvar 1 $used used_
+oo::define App method GetItems unused {
+    upvar 1 $unused unused_
+    set used [dict create]
     set items [list]
     foreach term [split [$UnhintedTextEdit get 1.0 end] \n] {
         if {$term ne ""} {
             set item [Item new $term]
             lappend items $item
             if {[set c [$item char]] ne ""} {
-                dict unset unused $c
-                if {[dict exists $used_ $c]} {
-                    $HintedTextEdit insert end "Duplicate &$c" {bold red}
+                dict unset unused_ $c
+                if {[dict exists $used $c]} {
+                    $HintedTextEdit insert end "\nDuplicate &$c" \
+                        {center bold red}
                     return ""
                 }
-                dict set used_ $c ""
+                dict set used $c ""
             }
         }
     }
