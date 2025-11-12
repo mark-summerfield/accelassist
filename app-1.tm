@@ -61,6 +61,7 @@ oo::define App method make_widgets {} {
     set tab2 [expr {$tab1 + [font measure TkDefaultFont —]}]
     $HintedTextEdit configure -tabs "$tab1 numeric $tab2 left" -undo false
     $HintedTextEdit set_completion false
+    $HintedTextEdit tag configure ul -underlinefg purple
     ttk::frame .mf.ctrl
     ttk::label .mf.ctrl.label -text Alphabet: -underline 0
     ttk::radiobutton .mf.ctrl.az -text A-Z -underline 0 \
