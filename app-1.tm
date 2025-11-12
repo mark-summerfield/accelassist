@@ -12,7 +12,8 @@ oo::singleton create App {
     variable UnhintedTextEdit
     variable HintedTextEdit
     variable WhichAlphabet
-    variable DoneLabel
+    variable CountLabel
+    variable UnusedLabel
 }
 
 oo::define App constructor {} {
@@ -56,7 +57,7 @@ oo::define App method make_widgets {} {
     }
     $UnhintedTextEdit insert end $unhinted
     set HintedTextEdit [TextEdit new .mf.body]
-    set tab1 [font measure TkDefaultFont "999"]
+    set tab1 [font measure TkDefaultFont "A-999"]
     set tab2 [expr {$tab1 + [font measure TkDefaultFont —]}]
     $HintedTextEdit configure -tabs "$tab1 numeric $tab2 left" -undo false
     $HintedTextEdit set_completion false
@@ -77,8 +78,12 @@ oo::define App method make_widgets {} {
     ttk::button .mf.ctrl.quitButton -text Quit -underline 0 \
         -command [callback on_quit] -width 7 -compound left \
         -image [ui::icon quit.svg $::ICON_SIZE]
-    set DoneLabel [ttk::label .mf.ctrl.donelabel -text 0/0 -relief sunken \
-        -padding 3]
+    ttk::frame .mf.state
+    const opts "-relief sunken -padding 3"
+    ttk::label .mf.state.countLabelLabel -text Done -padding 3
+    set CountLabel [ttk::label .mf.state.countLabel -text 0/0 {*}$opts]
+    ttk::label .mf.state.unusedLabelLabel -text Unused -padding 3
+    set UnusedLabel [ttk::label .mf.state.unusedLabel {*}$opts]
 }
 
 oo::define App method make_layout {} {
@@ -93,12 +98,16 @@ oo::define App method make_layout {} {
     pack .mf.ctrl.az -side left {*}$opts
     pack .mf.ctrl.az19 -side left {*}$opts
     pack .mf.ctrl.az09 -side left {*}$opts
-    pack $DoneLabel -side left {*}$opts
     pack [ttk::frame .mf.ctrl.pad] -side left -fill x -expand true {*}$opts
     pack .mf.ctrl.configButton -side left {*}$opts
     pack .mf.ctrl.quitButton -side left {*}$opts
     grid .mf.body -row 0 -column 0 -sticky news
-    grid .mf.ctrl -row 1 -column 0 -sticky we
+    pack .mf.state.countLabelLabel -side left {*}$opts
+    pack .mf.state.countLabel -side left {*}$opts
+    pack .mf.state.unusedLabelLabel -side left {*}$opts
+    pack .mf.state.unusedLabel -side left -fill x -expand true {*}$opts
+    grid .mf.state -row 1 -column 0 -sticky we {*}$opts
+    grid .mf.ctrl -row 2 -column 0 -sticky we
     grid columnconfigure .mf 0 -weight 1
     grid rowconfigure .mf 0 -weight 1
     pack .mf -fill both -expand true
@@ -133,17 +142,33 @@ oo::define App method on_quit {} {
     exit
 }
 
-# TODO refactor
-oo::define App method AccelAssist {} {
+oo::define App method Alphabet {} {
     switch $WhichAlphabet {
-        az { set alphabet ABCDEFGHIJKLMNOPQRSTUVWXYZ }
-        az19 { set alphabet 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ }
-        az09 { set alphabet 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ }
+        az { return ABCDEFGHIJKLMNOPQRSTUVWXYZ }
+        az19 { return 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ }
+        az09 { return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" }
     }
+}
+
+oo::define App method AccelAssist {} {
+    $HintedTextEdit delete 1.0 end
     set unused [dict create]
-    foreach c [split $alphabet ""] {
-        dict set unused $c ""
-    }
+    set alphabet [my Alphabet]
+    $CountLabel configure -text 0/0
+    $UnusedLabel configure -text $alphabet -foreground navy
+    foreach c [split $alphabet ""] { dict set unused $c "" }
+    set used [dict create]
+    if {[set items [my GetItems used]] eq ""} { return }
+    my PrepareUnused $items unused
+    set done [my PopulateHinted $items]
+    set total [llength $items]
+    $CountLabel configure -text "$done/$total" \
+        -foreground [expr {$done == $total ? "green" : "magenta"}]
+    $UnusedLabel configure -text [join [dict keys $unused] ""]
+}
+
+oo::define App method GetItems used {
+    upvar 1 $used used_
     set items [list]
     foreach term [split [$UnhintedTextEdit get 1.0 end] \n] {
         if {$term ne ""} {
@@ -151,27 +176,43 @@ oo::define App method AccelAssist {} {
             lappend items $item
             if {[set c [$item char]] ne ""} {
                 dict unset unused $c
+                if {[dict exists $used_ $c]} {
+                    $HintedTextEdit insert end "Duplicate &$c" {bold red}
+                    return ""
+                }
+                dict set used_ $c ""
             }
         }
     }
+    return $items
+}
+
+oo::define App method PrepareUnused {items unused} {
+    upvar 1 $unused unused_
     set bysize [lsort -indices -command [lambda {a b} { $a compare $b }] \
         $items]
     foreach i $bysize {
         set item [lindex $items $i]
         foreach c [$item candidates] {
-            if {[dict exists $unused $c]} {
+            if {[dict exists $unused_ $c]} {
                 $item set_char $c
-                dict unset unused $c
+                dict unset unused_ $c
             }
         }
     }
-    $HintedTextEdit delete 1.0 end
+}
+
+oo::define App method PopulateHinted items {
+    set done 0
     foreach item $items {
         set c [$item char]
+        $HintedTextEdit insert end [expr {$c eq "" ? " " : $c}]\t \
+            {green bold}
         if {[set i [$item index]] == -1} {
-            $HintedTextEdit insert end \t?\t red
+            $HintedTextEdit insert end ?\t red
         } else {
-            $HintedTextEdit insert end \t$i\t purple
+            $HintedTextEdit insert end $i\t purple
+            incr done
         }
         set term [$item term]
         if {$i == -1} {
@@ -179,10 +220,10 @@ oo::define App method AccelAssist {} {
         } else {
             $HintedTextEdit insert end [string range $term 0 $i-1]
             $HintedTextEdit insert end [string index $term $i] \
-                {highlight ul blue bold}
+                {ul green bold}
             $HintedTextEdit insert end [string range $term $i+1 end]
         }
         $HintedTextEdit insert end \n
     }
-    # TODO show unused: need extra label
+    return $done
 }
