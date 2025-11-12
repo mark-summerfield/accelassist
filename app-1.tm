@@ -56,7 +56,7 @@ oo::define App method make_widgets {} {
     }
     $UnhintedTextEdit insert end $unhinted
     set HintedTextEdit [TextEdit new .mf.body]
-    set tab1 [font measure TkDefaultFont "9999"]
+    set tab1 [font measure TkDefaultFont "999"]
     set tab2 [expr {$tab1 + [font measure TkDefaultFont —]}]
     $HintedTextEdit configure -tabs "$tab1 numeric $tab2 left" -undo false
     $HintedTextEdit set_completion false
@@ -133,6 +133,7 @@ oo::define App method on_quit {} {
     exit
 }
 
+# TODO refactor
 oo::define App method AccelAssist {} {
     switch $WhichAlphabet {
         az { set alphabet ABCDEFGHIJKLMNOPQRSTUVWXYZ }
@@ -167,12 +168,10 @@ oo::define App method AccelAssist {} {
     $HintedTextEdit delete 1.0 end
     foreach item $items {
         set c [$item char]
-        $HintedTextEdit insert end [expr {$c eq "" ? " " : $c}]\t \
-            {green bold}
         if {[set i [$item index]] == -1} {
-            $HintedTextEdit insert end ?\t red
+            $HintedTextEdit insert end \t?\t red
         } else {
-            $HintedTextEdit insert end $i\t purple
+            $HintedTextEdit insert end \t$i\t purple
         }
         set term [$item term]
         if {$i == -1} {
@@ -180,9 +179,10 @@ oo::define App method AccelAssist {} {
         } else {
             $HintedTextEdit insert end [string range $term 0 $i-1]
             $HintedTextEdit insert end [string index $term $i] \
-                {highlight ul}
+                {highlight ul blue bold}
             $HintedTextEdit insert end [string range $term $i+1 end]
         }
         $HintedTextEdit insert end \n
     }
+    # TODO show unused: need extra label
 }
