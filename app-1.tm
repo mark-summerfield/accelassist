@@ -172,7 +172,7 @@ oo::define App method on_config {} {
 oo::define App method on_quit {} {
     my MaybeSave
     set config [Config new]
-    $config set_lastfilename $Filename
+    $config set_lastfilename [file normalize $Filename]
     $config save
     exit
 }
