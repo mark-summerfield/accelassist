@@ -8,7 +8,7 @@ nagelfar.sh \
     | grep -v Suspicious.variable.name...my.varname \
     | grep -v Found.constant.*which.is.also.a.variable
 du -sh .git
-ls -sh .store.str
+ls -sh .*.str
 clc -s -l tcl
 str s
 git st
