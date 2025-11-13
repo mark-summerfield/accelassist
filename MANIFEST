@@ -1,15 +1,3 @@
-# TODO
-# - Move controls to top
-# - Use better algo: 4 passes:
-#   . if Cut & Copy present && neither contains & && C & T unused
-#	then set cut to T and copy to C & update unused
-#   . first_char 
-#   . if done < total then first_words_char
-#   . if done < total then any_unique_char
-# - "menu" buttons: &New… &Open… &Save &Config… &About &Quit
-#   (.acc files save is save as if no filename)
-# - config: lastuntinted → lastfilename
-
 accelassist.tk
 app-1.tm
 item-1.tm

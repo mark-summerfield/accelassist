@@ -18,7 +18,7 @@ oo::define Item method set_term term { set Term $term }
 oo::define Item method index {} { return $Index }
 oo::define Item method set_index index { set Pos $index }
 
-oo::define Item method done {} { expr {$Index != -1} }
+oo::define Item method is_done {} { expr {$Index != -1} }
 
 oo::define Item method char {} {
     if {$Index == -1} { return "" }
@@ -26,12 +26,11 @@ oo::define Item method char {} {
 }
 
 oo::define Item method set_char c {
-    set term [string toupper $Term]
-    set Index [string first $c $term]
+    set Index [string first $c [string toupper $Term]]
 }
 
 oo::define Item method size {} {
-    string length [regsub -all -- & [regsub -all -- && $Term ..] ""]
+    string length [regsub -all -- & [regsub -all -- && $Term .] ""]
 }
 
 oo::define Item method compare other {
@@ -48,13 +47,32 @@ oo::define Item method compare other {
     string compare [string tolower $aterm] [string tolower $bterm]
 }
 
-oo::define Item method candidates {} {
+oo::define Item method first_char {} {
+    if {$Index != -1} { return "" }
+    set c [string toupper [string index $Term 0]]
+    if {[string is alnum $c]} { return $c }
+    return ""
+}
+
+oo::define Item method first_word_chars {} {
+    if {$Index != -1} { return "" }
     set chars [list]
-    if {$Index != -1} { return $chars }
     foreach word [split $Term] {
         set c [string toupper [string index $word 0]]
-        if {[string is alpha $c]} {
+        if {[string is alnum $c]} {
             lappend chars $c
+        }
+    }
+    return $chars
+}
+
+oo::define Item method unique_chars {} {
+    if {$Index != -1} { return "" }
+    set chars [list]
+    foreach c [split $Term ""] {
+        if {[string is alnum $c]} {
+            set c [string toupper $c]
+            if {[lsearch -exact $chars $c] == -1} { lappend chars $c }
         }
     }
     return $chars

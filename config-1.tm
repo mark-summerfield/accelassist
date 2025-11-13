@@ -8,14 +8,14 @@ oo::singleton create Config {
     variable Filename
     variable Blinking
     variable Geometry
-    variable LastUnhinted
+    variable LastFilename
 }
 
 oo::define Config constructor {} {
     set Filename [util::get_ini_filename]
     set Blinking true
     set Geometry ""
-    set LastUnhinted ""
+    set LastFilename ""
     if {[file exists $Filename] && [file size $Filename]} {
         set ini [ini::open $Filename -encoding utf-8 r]
         try {
@@ -26,8 +26,8 @@ oo::define Config constructor {} {
                 ttk::style configure . -insertofftime 0
             }
             set Geometry [ini::value $ini General Geometry $Geometry]
-            set LastUnhinted [ini::value $ini General LastUnhinted \
-                $LastUnhinted]
+            set LastFilename [ini::value $ini General LastFilename \
+                $LastFilename]
         } on error err {
             puts "invalid config in '$Filename'; using defaults: $err"
         } finally {
@@ -42,7 +42,7 @@ oo::define Config method save {} {
         ini::set $ini General Scale [tk scaling]
         ini::set $ini General Blinking [my blinking]
         ini::set $ini General Geometry [wm geometry .]
-        ini::set $ini General LastUnhinted $LastUnhinted
+        ini::set $ini General LastFilename $LastFilename
         ini::commit $ini
     } finally {
         ini::close $ini
@@ -58,16 +58,13 @@ oo::define Config method set_blinking blinking { set Blinking $blinking }
 oo::define Config method geometry {} { return $Geometry }
 oo::define Config method set_geometry geometry { set Geometry $geometry }
 
-oo::define Config method lastunhinted {} {
-    regsub -all -- % $LastUnhinted \n
-}
-
-oo::define Config method set_lastunhinted lastunhinted {
-    set LastUnhinted [regsub -all -- \n $lastunhinted %]
+oo::define Config method lastfilename {} { return $LastFilename }
+oo::define Config method set_lastfilename lastfilename {
+    set LastFilename $lastfilename
 }
 
 oo::define Config method to_string {} {
     return "Config filename=$Filename blinking=$Blinking\
         scaling=[tk scaling] geometry=$Geometry\
-        lastunhinted=[my lastunhinted]"
+        lastfilename=[my lastfilename]"
 }

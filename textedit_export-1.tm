@@ -32,7 +32,7 @@ oo::define TextEdit method GetTagDicts {} {
 oo::define TextEdit classmethod MergeTags old {
     set new [list]
     set prev ""
-    foreach tag [lsort -command TextEditCompareTags $old] {
+    foreach tag [lsort -command [lambda {a b} { $a compare $b }] $old] {
         if {$prev ne "" && [$prev para] == [$tag para] && \
                 [$prev char] == [$tag char]} {
             $prev append [$tag tag]
@@ -50,18 +50,6 @@ oo::define TextEdit classmethod DictFromTagList tag_list {
         dict set tag_dict [$tag para].[$tag char] $tag
     }
     return $tag_dict
-}
-
-proc TextEditCompareTags {t u} {
-    set paraT [$t para]
-    set paraU [$u para]
-    if {$paraT < $paraU} { return -1 }
-    if {$paraT > $paraU} { return 1 }
-    set charT [$t char]
-    set charU [$u char]
-    if {$charT < $charU} { return -1 }
-    if {$charT > $charU} { return 1 }
-    string compare [$t tag] [$u tag]
 }
 
 oo::class create TextEditTag {
@@ -91,6 +79,18 @@ oo::class create TextEditTag {
     }
     method para {} { return $Para }
     method char {} { return $Char }
+
+    method compare other {
+        set my_para [my para]
+        set other_para [$other para]
+        if {$my_para < $other_para} { return -1 }
+        if {$my_para > $other_para} { return 1 }
+        set my_char [my char]
+        set other_char [$other char]
+        if {$my_char < $other_char} { return -1 }
+        if {$my_char > $other_char} { return 1 }
+        string compare [my tag] [$other tag]
+    }
 
     method to_string {} { return "TextEditTag: $Para.$Char $Tags" }
 }
