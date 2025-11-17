@@ -63,7 +63,7 @@ oo::define AboutForm method on_click_url index {
         if {![string match -nocase http*://* $url]} {
             set url [string cat http:// $url]
         }
-        util::open_webpage $url
+        util::open_url $url
     }
 }
 
