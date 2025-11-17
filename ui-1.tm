@@ -51,3 +51,33 @@ proc ui::scrollize {frame name which} {
     grid columnconfigure $frame 0 -weight 1
     grid rowconfigure $frame 0 -weight 1
 }
+
+# Use for ttk::entry, ttk::combobox, and ttk::spinbox
+proc ui::apply_edit_bindings widget {
+    bind $widget <Control-Delete> { ui::on_ctrl_del %W ; break }
+    bind $widget <Control-BackSpace> { ui::on_ctrl_bs %W ; break }
+    bind $widget <Control-a> { ui::on_ctrl_a %W ; break }
+}
+
+proc ui::on_ctrl_del widget {
+    set txt [$widget get]
+    set i [$widget index insert]
+    set j [expr {$i + 1}]
+    while {$j < [string length $txt] && \
+            [string is alnum [string index $txt $j]]} {
+        incr j
+    }
+    $widget delete $i $j
+}
+
+proc ui::on_ctrl_bs widget {
+    set txt [$widget get]
+    set j [$widget index insert]
+    set i [expr {$j - 1}]
+    while {$i >= 0 && [string is alnum [string index $txt $i]]} {
+        incr i -1
+    }
+    $widget delete $i $j
+}
+
+proc ui::on_ctrl_a widget { $widget selection range 0 end }
