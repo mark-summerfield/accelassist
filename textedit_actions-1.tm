@@ -76,7 +76,7 @@ oo::define TextEdit method on_return {} {
             $Text insert insert "• " bindent0
         }
     } elseif {[info exists ws] && $ws ne ""} {
-        $Text insert insert ${ws} NtextTab
+        $Text insert insert ${ws}
     }
     return -code break
 }
