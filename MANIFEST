@@ -3,6 +3,7 @@ app-1.tm
 item-1.tm
 config-1.tm
 config_form-1.tm
+about_form-1.tm
 
 textedit-1.tm
 textedit_actions-1.tm
@@ -18,6 +19,8 @@ about_form-1.tm
 abstract_form-1.tm
 message_form-1.tm
 ui-1.tm
+
+README.md
 
 st.sh
 

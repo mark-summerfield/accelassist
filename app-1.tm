@@ -1,5 +1,6 @@
 # Copyright © 2025 Mark Summerfield. All rights reserved.
 
+package require about_form
 package require config
 package require config_form
 package require item
@@ -65,12 +66,20 @@ oo::define App method make_widgets {} {
     ttk::button .mf.ctrl.saveButton -text Save -underline 0 \
         -command [callback on_save] -width 7 -compound left \
         -image [ui::icon document-save.svg $::ICON_SIZE]
-    ttk::button .mf.ctrl.configButton -text Config… -underline 0 \
-        -command [callback on_config] -width 7 -compound left \
-        -image [ui::icon preferences-system.svg $::ICON_SIZE]
-    ttk::button .mf.ctrl.quitButton -text Quit -underline 0 \
-        -command [callback on_quit] -width 7 -compound left \
-        -image [ui::icon quit.svg $::ICON_SIZE]
+    ttk::menubutton .mf.ctrl.moreButton -text More -underline 0 \
+        -compound left -image [ui::icon blank.svg $::ICON_SIZE]
+    menu .mf.ctrl.moreButton.menu
+    .mf.ctrl.moreButton.menu add command -label Config… -underline 0 \
+        -compound left -command [callback on_config] \
+        -image [ui::icon preferences-system.svg $::MENU_ICON_SIZE]
+    .mf.ctrl.moreButton.menu add command -label About -underline 0 \
+        -compound left -command [callback on_about] \
+        -image [ui::icon about.svg $::MENU_ICON_SIZE]
+    .mf.ctrl.moreButton.menu add separator
+    .mf.ctrl.moreButton.menu add command -label Quit -underline 0 \
+        -compound left -command [callback on_quit] -accelerator Ctrl+Q \
+        -image [ui::icon quit.svg $::MENU_ICON_SIZE]
+    .mf.ctrl.moreButton configure -menu .mf.ctrl.moreButton.menu
     ttk::frame .mf.body
     set UnhintedTextEdit [TextEdit new .mf.body]
     set HintedTextEdit [TextEdit new .mf.body]
@@ -94,8 +103,7 @@ oo::define App method make_layout {} {
     pack .mf.ctrl.openButton -side left {*}$opts
     pack .mf.ctrl.saveButton -side left {*}$opts
     pack [ttk::frame .mf.ctrl.pad] -side left -fill x -expand true {*}$opts
-    pack .mf.ctrl.configButton -side left {*}$opts
-    pack .mf.ctrl.quitButton -side left {*}$opts
+    pack .mf.ctrl.moreButton -side left {*}$opts
     grid [$UnhintedTextEdit ttk_frame] -row 0 -column 0 -sticky news \
         {*}$opts
     grid [$HintedTextEdit ttk_frame] -row 0 -column 1 -sticky news {*}$opts
@@ -114,10 +122,15 @@ oo::define App method make_layout {} {
 }
 
 oo::define App method make_bindings {} {
-    bind . <Alt-c> [callback on_config]
     bind . <Alt-n> [callback on_new]
     bind . <Alt-o> [callback on_open]
-    bind . <Alt-q> [callback on_quit]
+    bind . <Alt-m> {
+        tk_popup .mf.ctrl.moreButton.menu \
+            [expr {[winfo rootx .mf.ctrl.moreButton]}] \
+            [expr {[winfo rooty .mf.ctrl.moreButton] + \
+                   [winfo height .mf.ctrl.moreButton]}]
+    }
+    bind . <Control-q> [callback on_quit]
     bind . <Alt-s> [callback on_save]
     bind [$UnhintedTextEdit tk_text] <<Modified>> [callback on_change]
     wm protocol . WM_DELETE_WINDOW [callback on_quit]
@@ -167,6 +180,11 @@ oo::define App method on_config {} {
     set ok [Ref new false]
     set form [ConfigForm new $ok]
     tkwait window [$form form]
+}
+
+oo::define App method on_about {} {
+    AboutForm new "Keyboard accelerators assistant" \
+        https://github.com/mark-summerfield/accelassist
 }
 
 oo::define App method on_quit {} {

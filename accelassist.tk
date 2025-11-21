@@ -8,6 +8,8 @@ if {![catch {file readlink [info script]} name]} {
 }
 tcl::tm::path add $APPPATH
 
+const VERSION 1.0.0
+
 package require app
 
 set app [App new]
