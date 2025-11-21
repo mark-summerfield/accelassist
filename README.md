@@ -1,6 +1,6 @@
 # AccelAssist
 
-`accelassist.tk` is a GUI Keyboard accelerators assistant.
+`accelassist.tk` is a GUI keyboard accelerators assistant.
 
 ![Screenshot](images/screenshot.png)
 
