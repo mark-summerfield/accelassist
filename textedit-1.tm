@@ -155,8 +155,8 @@ oo::define TextEdit method isempty {} {
 
 oo::define TextEdit method clear {} {
     $Text delete 1.0 end
-    $Text edit modified false
     $Text edit reset
+    $Text edit modified false
 }
 
 oo::define TextEdit method first_line {} { string trim [$Text get 1.0 2.0] }
@@ -173,8 +173,8 @@ oo::define TextEdit method highlight_urls {} {
 
 oo::define TextEdit method after_load {{index insert}} {
     my highlight_urls
-    $Text edit modified false
     $Text edit reset
+    $Text edit modified false
     if {$index ne "insert"} { $Text mark set insert $index }
     $Text see $index
 }
