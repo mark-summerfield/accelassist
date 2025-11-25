@@ -159,6 +159,14 @@ oo::define TextEdit method clear {} {
     $Text edit modified false
 }
 
+oo::define TextEdit method after_load {{index insert}} {
+    my highlight_urls
+    $Text edit reset
+    $Text edit modified false
+    if {$index ne "insert"} { $Text mark set insert $index }
+    $Text see $index
+}
+
 oo::define TextEdit method first_line {} { string trim [$Text get 1.0 2.0] }
 
 oo::define TextEdit method highlight_urls {} {
@@ -169,14 +177,6 @@ oo::define TextEdit method highlight_urls {} {
         }
         $Text tag add url $i $j
     }
-}
-
-oo::define TextEdit method after_load {{index insert}} {
-    my highlight_urls
-    $Text edit reset
-    $Text edit modified false
-    if {$index ne "insert"} { $Text mark set insert $index }
-    $Text see $index
 }
 
 oo::define TextEdit method selected {} {
