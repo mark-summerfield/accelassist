@@ -21,7 +21,7 @@ oo::define Item method set_index index { set Pos $index }
 oo::define Item method is_done {} { expr {$Index != -1} }
 
 oo::define Item method char {} {
-    if {$Index == -1} { return "" }
+    if {$Index == -1} { return }
     string toupper [string index $Term $Index]
 }
 
@@ -48,14 +48,13 @@ oo::define Item method compare other {
 }
 
 oo::define Item method first_char {} {
-    if {$Index != -1} { return "" }
+    if {$Index != -1} { return }
     set c [string toupper [string index $Term 0]]
     if {[string is alnum $c]} { return $c }
-    return ""
 }
 
 oo::define Item method first_word_chars {} {
-    if {$Index != -1} { return "" }
+    if {$Index != -1} { return }
     set chars [list]
     foreach word [split $Term] {
         set c [string toupper [string index $word 0]]
@@ -67,7 +66,7 @@ oo::define Item method first_word_chars {} {
 }
 
 oo::define Item method unique_chars {} {
-    if {$Index != -1} { return "" }
+    if {$Index != -1} { return }
     set chars [list]
     foreach c [split $Term ""] {
         if {[string is alnum $c]} {

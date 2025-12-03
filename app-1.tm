@@ -245,7 +245,7 @@ oo::define App method GetItems unused {
                 if {[dict exists $used $c]} {
                     $HintedTextEdit insert end "\nDuplicate &$c" \
                         {center bold red}
-                    return ""
+                    return
                 }
                 dict set used $c ""
             }
