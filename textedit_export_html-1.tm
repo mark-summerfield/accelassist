@@ -43,20 +43,20 @@ oo::define TextEdit method HtmlTagOn {prefix tag} {
         bindent0 {
             set prefix_ "<p style=\"padding-left: 1em;\
                 text-indent: -1em;\">"
-            return ""
+            return
         }
         bindent1 {
             set prefix_ "<p style=\"padding-left: 2em;\
                 text-indent: -1em;\">"
-            return ""
+            return
         }
         center {
             set prefix_ "<p style=\"text-align: center;\">"
-            return ""
+            return
         }
         right {
             set prefix_ "<p style=\"text-align: right;\">"
-            return ""
+            return
         }
         bold { return <b> }
         bolditalic { return <b><i> }
@@ -67,13 +67,13 @@ oo::define TextEdit method HtmlTagOn {prefix tag} {
         sub { return <sub> }
         sup { return <sup> }
         ul - underline { return <u> }
-        url { return "" }
+        url { return }
         default {
             if {[set color [dict getdef $COLOR_FOR_TAG $tag ""]] ne ""} {
                 return "<span style=\"color: $color;\">"
             }
             puts "unhandled tag '$tag'"
-            return ""
+            return
         }
     }
 }
@@ -89,12 +89,12 @@ oo::define TextEdit method HtmlTagOff tag {
         sub { return </sub> }
         sup { return </sup> }
         ul - underline { return </u> }
-        url { return "" }
+        url { return }
         default {
             if {[set color [dict getdef $COLOR_FOR_TAG $tag ""]] ne ""} {
                 return "</span>"
             }
-            return ""
+            return
         }
     }
 }
