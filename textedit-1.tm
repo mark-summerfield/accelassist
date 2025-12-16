@@ -2,6 +2,7 @@
 
 package require html 1
 package require ntext 1
+package require scrollutil_tile 2
 package require ui
 
 oo::class create TextEdit {
@@ -44,14 +45,16 @@ oo::define TextEdit constructor {parent {family ""} {size 0}} {
     if {![string match *. $parent]} { set parent $parent. }
     set Frame ${parent}tf#[incr N] ;# unique
     ttk::frame $Frame
-    set Text [text $Frame.txt -undo true -wrap word]
+    set sa [scrollutil::scrollarea $Frame.sa -xscrollbarmode none]
+    set Text [text $Frame.sa.txt -undo true -wrap word]
+    $sa setwidget $Text
+    pack $sa -fill both -expand 1
     set Completion true
     set CompletionMenu [menu $Frame.completionMenu]
     my MakeContextMenu
     my MakeBindings
     my make_fonts $family $size
     my make_tags
-    ui::scrollize $Frame txt vertical
 }
 
 oo::define TextEdit method completion {} { return $Completion }
