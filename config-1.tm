@@ -19,7 +19,7 @@ oo::define Config constructor {} {
     if {[file exists $Filename] && [file size $Filename]} {
         set ini [ini::open $Filename -encoding utf-8 r]
         try {
-            tk scaling [ini::value $ini General Scale 1.0]
+            tk scaling [ini::value $ini General Scale [tk scaling]]
             if {![set Blinking [ini::value $ini General Blinking \
                     $Blinking]]} {
                 option add *insertOffTime 0

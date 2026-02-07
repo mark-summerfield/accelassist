@@ -14,6 +14,8 @@ proc lrandom lst { lindex $lst [expr {int(rand() * [llength $lst])}] }
 
 namespace eval util {}
 
+# Converts: -w -x Arg -y=Arg -zArg --one --two=Arg --three Arg one two
+# into:     -w -x Arg -y Arg -z Arg --one --two Arg --three Arg one two
 proc util::pre_process_args argv {
     set ppargv [list]
     foreach arg $argv {
