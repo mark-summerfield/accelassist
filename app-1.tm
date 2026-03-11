@@ -212,6 +212,7 @@ oo::define App method FileOpen {} {
 
 oo::define App method FileSave {} {
     if {[set txt [string trim [$UnhintedTextEdit get 1.0 end]]] ne ""} {
+        wm title . "[tk appname] — [file tail $Filename]"
         writeFile $Filename $txt
     }
 }
