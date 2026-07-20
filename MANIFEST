@@ -1,9 +1,22 @@
+# TODO 
+# - convert accelkeys.tcl into accelkeys.tm without main
+# - change accelkeys.tcl to just have main (& use clop for cli)
+# - convert munkres.tcl into munkres.tm
+# - update test_accelkeys.tcl to use accelkeys.tm (and indirectly
+#   munkres.tm)
+# - port accelassist.tk to use accelkeys.tm (and indirectly munkres.tm)
+
 accelassist.tk
 app-1.tm
 item-1.tm
 config-1.tm
 config_form-1.tm
 about_form-1.tm
+
+accelkeys.tcl
+accelkeys-1.tm
+munkres-1.tm
+test_accelkeys.tcl
 
 textedit-1.tm
 textedit_actions-1.tm
