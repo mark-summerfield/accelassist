@@ -125,11 +125,10 @@ proc ::accelkeys::_update_lines {lines alphabet indexes} {
 # character, no duplicate accelerators). Raises an error (via 'error')
 # for a duplicate accelerator letter, a trailing '&', or an empty list.
 proc ::accelkeys::quality lines {
-    array set countForChar {}
     set target 0.0
     set actual 0.0
     set size [llength $lines]
-
+    set countForChar [dict create]
     set row 0
     foreach line $lines {
         set ideal [expr {25.0 * $size + $row}]
@@ -137,10 +136,7 @@ proc ::accelkeys::quality lines {
         if {[string index $line 0] eq "&"} {
             set actual [expr {$actual + $ideal}]
             set ch [string toupper [string index $line 1]]
-            if {![info exists countForChar($ch)]} {
-                set countForChar($ch) 0
-            }
-            incr countForChar($ch)
+            dict set countForChar $ch [dict getdef $countForChar $ch 0]
         } else {
             set factor {}
             set i [string first " &" $line]
@@ -160,22 +156,14 @@ proc ::accelkeys::quality lines {
             if {$factor ne {}} {
                 set actual [expr {$actual + ($factor * $size) + $row - $i}]
                 set ch [string toupper [string index $line $i]]
-                if {![info exists countForChar($ch)]} {
-                    set countForChar($ch) 0
-                }
-                incr countForChar($ch)
+                dict set countForChar $ch [dict getdef $countForChar $ch 0]
             }
         }
         incr row
     }
-
-    if {$size == 0} {
-        error "missing lines"
+    if {!$size} { error "missing lines" }
+    dict for {ch count} $countForChar {
+        if {$count > 1} { error "&$ch occurs $count times" }
     }
-    foreach {char count} [array get countForChar] {
-        if {$count > 1} {
-            error "&$char occurs $count times"
-        }
-    }
-    return [expr {$actual / $target}]
+    expr {$actual / $target}
 }

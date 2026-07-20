@@ -7,9 +7,7 @@
 # "munkres" package (itself the classic O(n^3) Munkres/Hungarian method),
 # restricted to square matrices (which is all accelkeys needs).
 
-namespace eval ::munkres {
-    namespace export compute make_cost_matrix
-}
+namespace eval ::munkres { namespace export compute make_cost_matrix }
 
 # ::munkres::compute costMatrix
 #
@@ -17,8 +15,7 @@ namespace eval ::munkres {
 # Returns a list of {row col} pairs describing the minimum-cost
 # assignment (one column per row).
 proc ::munkres::compute costMatrix {
-    set n [llength $costMatrix]
-    if {$n == 0} { return {} }
+    if {![set n [llength $costMatrix]]} { return }
 
     array set C {}
     array set marked {}
@@ -68,11 +65,9 @@ proc ::munkres::compute costMatrix {
     }
 
     set results {}
-    for {set i 0} {$i < $n} {incr i} {
-        for {set j 0} {$j < $n} {incr j} {
-            if {$marked($i,$j) == 1} {
-                lappend results [list $i $j]
-            }
+    foreach i [lseq $n] {
+        foreach j [lseq $n] {
+            if {$marked($i,$j) == 1} { lappend results [list $i $j] }
         }
     }
     return $results
@@ -83,14 +78,12 @@ proc ::munkres::compute costMatrix {
 proc ::munkres::_step1 {C_name n} {
     upvar 1 $C_name C
 
-    for {set i 0} {$i < $n} {incr i} {
+    foreach i [lseq $n] {
         set minval $C($i,0)
         for {set j 1} {$j < $n} {incr j} {
             if {$C($i,$j) < $minval} { set minval $C($i,$j) }
         }
-        for {set j 0} {$j < $n} {incr j} {
-            set C($i,$j) [expr {$C($i,$j) - $minval}]
-        }
+        foreach j [lseq $n] { set C($i,$j) [expr {$C($i,$j) - $minval}] }
     }
     return 2
 }
@@ -105,8 +98,8 @@ proc ::munkres::_step2 {C_name marked_name rowCovered_name colCovered_name \
     upvar 1 $rowCovered_name rowCovered
     upvar 1 $colCovered_name colCovered
 
-    for {set i 0} {$i < $n} {incr i} {
-        for {set j 0} {$j < $n} {incr j} {
+    foreach i [lseq $n] {
+        foreach j [lseq $n] {
             if {$C($i,$j) == 0 && !$colCovered($j) && !$rowCovered($i)} {
                 set marked($i,$j) 1
                 set colCovered($j) 1
@@ -127,8 +120,8 @@ proc ::munkres::_step3 {marked_name colCovered_name n} {
     upvar 1 $colCovered_name colCovered
 
     set count 0
-    for {set i 0} {$i < $n} {incr i} {
-        for {set j 0} {$j < $n} {incr j} {
+    foreach i [lseq $n] {
+        foreach j [lseq $n] {
             if {$marked($i,$j) == 1 && !$colCovered($j)} {
                 set colCovered($j) 1
                 incr count
@@ -220,8 +213,8 @@ proc ::munkres::_step6 {C_name rowCovered_name colCovered_name n} {
     upvar 1 $colCovered_name colCovered
 
     set minval [::munkres::_findSmallest C rowCovered colCovered $n]
-    for {set i 0} {$i < $n} {incr i} {
-        for {set j 0} {$j < $n} {incr j} {
+    foreach i [lseq $n] {
+        foreach j [lseq $n] {
             if {$rowCovered($i)} {
                 set C($i,$j) [expr {$C($i,$j) + $minval}]
             }
@@ -239,9 +232,9 @@ proc ::munkres::_findSmallest {C_name rowCovered_name colCovered_name n} {
     upvar 1 $colCovered_name colCovered
 
     set minval {}
-    for {set i 0} {$i < $n} {incr i} {
+    foreach i [lseq $n] {
         if {$rowCovered($i)} continue
-        for {set j 0} {$j < $n} {incr j} {
+        foreach j [lseq $n] {
             if {$colCovered($j)} continue
             if {$minval eq {} || $C($i,$j) < $minval} {
                 set minval $C($i,$j)
@@ -286,25 +279,19 @@ proc ::munkres::_findAZero {C_name rowCovered_name colCovered_name n i0 \
 
 proc ::munkres::_findStarInRow {marked_name n row} {
     upvar 1 $marked_name marked
-    for {set j 0} {$j < $n} {incr j} {
-        if {$marked($row,$j) == 1} { return $j }
-    }
+    foreach j [lseq $n] { if {$marked($row,$j) == 1} { return $j } }
     return -1
 }
 
 proc ::munkres::_findStarInCol {marked_name n col} {
     upvar 1 $marked_name marked
-    for {set i 0} {$i < $n} {incr i} {
-        if {$marked($i,$col) == 1} { return $i }
-    }
+    foreach i [lseq $n] { if {$marked($i,$col) == 1} { return $i } }
     return -1
 }
 
 proc ::munkres::_findPrimeInRow {marked_name n row} {
     upvar 1 $marked_name marked
-    for {set j 0} {$j < $n} {incr j} {
-        if {$marked($row,$j) == 2} { return $j }
-    }
+    foreach j [lseq $n] { if {$marked($row,$j) == 2} { return $j } }
     return -1
 }
 
@@ -327,7 +314,7 @@ proc ::munkres::_convertPath {marked_name pathR_name pathC_name count} {
 proc ::munkres::_clearCovers {rowCovered_name colCovered_name n} {
     upvar 1 $rowCovered_name rowCovered
     upvar 1 $colCovered_name colCovered
-    for {set i 0} {$i < $n} {incr i} {
+    foreach i [lseq $n] {
         set rowCovered($i) 0
         set colCovered($i) 0
     }
@@ -335,8 +322,8 @@ proc ::munkres::_clearCovers {rowCovered_name colCovered_name n} {
 
 proc ::munkres::_erasePrimes {marked_name n} {
     upvar 1 $marked_name marked
-    for {set i 0} {$i < $n} {incr i} {
-        for {set j 0} {$j < $n} {incr j} {
+    foreach i [lseq $n] {
+        foreach j [lseq $n] {
             if {$marked($i,$j) == 2} { set marked($i,$j) 0 }
         }
     }
@@ -362,9 +349,7 @@ proc ::munkres::make_cost_matrix {profitMatrix {maximum {}}} {
     set costMatrix {}
     foreach row $profitMatrix {
         set costRow {}
-        foreach value $row {
-            lappend costRow [expr {$maximum - $value}]
-        }
+        foreach value $row { lappend costRow [expr {$maximum - $value}] }
         lappend costMatrix $costRow
     }
     return $costMatrix

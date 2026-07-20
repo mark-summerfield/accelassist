@@ -86,6 +86,6 @@ for {set i 0} {$i < [llength $inputs]} {incr i} {
     }
 }
 
-puts "Checked $checked non-empty lists, $failures failed."
-if {$failures > 0} { exit 1 }
-puts "ALL TESTS PASSED"
+puts -nonewline "Checked $checked non-empty lists, $failures failed."
+if {$failures > 0} { puts "" ; exit 1 }
+puts " OK."
