@@ -72,13 +72,13 @@ for {set i 0} {$i < [llength $inputs]} {incr i} {
         puts "  E=$expected"
     }
 
-    set expectedQuality [lindex $qualities $i]
-    set actualQuality [accelkeys::quality $actual]
-    if {abs($actualQuality - $expectedQuality) > 0.005} {
+    set expected_quality [lindex $qualities $i]
+    set actual_quality [accelkeys::quality $actual]
+    if {abs($actual_quality - $expected_quality) > 0.005} {
         set ok 0
         puts "FAIL list #[expr {$i + 1}] quality: got\
-              [format %.2f $actualQuality], want\
-              [format %.2f $expectedQuality]"
+              [format %.2f $actual_quality], want\
+              [format %.2f $expected_quality]"
     }
 
     if {!$ok} {
