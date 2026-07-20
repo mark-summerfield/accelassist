@@ -7,11 +7,6 @@ config-1.tm
 config_form-1.tm
 about_form-1.tm
 
-accelkeys.tcl
-accelkeys-1.tm
-munkres-1.tm
-test_accelkeys.tcl
-
 textedit-1.tm
 textedit_actions-1.tm
 textedit_export-1.tm
