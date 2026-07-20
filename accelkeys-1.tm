@@ -14,7 +14,7 @@ package require munkres
 
 namespace eval ::accelkeys { namespace export ALPHABET accelkeys }
 
-set ::accelkeys::ALPHABET "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
+set ::accelkeys::ALPHABET "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 # accelkeys lines
 #
